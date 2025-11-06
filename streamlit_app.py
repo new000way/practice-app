@@ -6,7 +6,7 @@ import seaborn as sns
 import matplotlib.font_manager as fm
 
 # 페이지 설정
-st.set_page_config(page_title="게임 플레이 패턴 시뮬레이터", layout="wide")
+st.set_page_config(page_title="랜덤 게임 플레이 패턴 시뮬레이터", layout="wide")
 
 # 한글 폰트 설정
 try:
@@ -23,7 +23,7 @@ except:
         plt.rc('font', family='NanumGothic')
 
 # 제목
-st.title("🎮 게임 플레이 패턴 시뮬레이터 대시보드")
+st.title("🎮 랜덤 게임 플레이 패턴 시뮬레이터 대시보드")
 
 # 데이터 시뮬레이션
 np.random.seed(42)
@@ -74,4 +74,21 @@ with col1:
 
 with col2:
     st.subheader("💸 평균 지출 금액 (₩)")
-    st.metric(label="평균 지출", va
+    st.metric(label="평균 지출", value=f"{filtered_df['Spend'].mean():,.0f} ₩")
+
+with col3:
+    st.subheader("⏱️ 평균 플레이타임 (시간)")
+    st.metric(label="평균 플레이타임", value=f"{filtered_df['PlayTime'].mean():.2f}시간")
+
+st.header("⌚ 접속 시간대 분포 (가장 많은 시간)")
+favorite_hours = filtered_df["FavoriteHour"].value_counts().sort_index()
+st.bar_chart(favorite_hours)
+
+st.header("🧠 세션당 평균 시간 vs 전체 플레이타임")
+fig, ax = plt.subplots()
+sns.scatterplot(data=filtered_df, x="AvgSessionTime", y="PlayTime", hue="GameGenre", ax=ax)
+plt.xlabel("세션당 시간 (시간)")
+plt.ylabel("총 플레이타임 (시간)")
+st.pyplot(fig)
+
+st.caption("Simulation Dashboard by YOU - Powered by Streamlit 🚀")
