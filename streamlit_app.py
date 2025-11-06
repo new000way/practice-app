@@ -1,83 +1,42 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix
 
-st.set_page_config(page_title="게임 유저 참여 예측 대시보드", layout="wide")
+# 페이지 제목
+st.title("게임 유저 데이터 시각화 대시보드 (데모)")
 
-st.title("🎮 게임 유저 참여도 예측 대시보드")
+# 데이터 생성
+np.random.seed(42)
+num_users = 1000
 
-# --- 사이드바 ---
-st.sidebar.header("설정")
+data = {
+    "UserID": np.arange(1, num_users + 1),
+    "GameGenre": np.random.choice(["Action", "RPG", "Strategy", "Puzzle", "Sports"], num_users),
+    "PlayTime": np.random.exponential(scale=2, size=num_users).round(2),
+    "Age": np.random.randint(13, 50, num_users),
+    "Country": np.random.choice(["Korea", "USA", "Japan", "Germany", "Brazil"], num_users)
+}
 
-# 파일 업로드
-data_file = st.sidebar.file_uploader("CSV 데이터 파일 업로드", type=['csv'])
+df = pd.DataFrame(data)
 
-if data_file:
-    df = pd.read_csv(data_file)
+# 기본 통계
+st.header("📊 기본 통계 요약")
+st.dataframe(df.describe())
 
-    # --- 데이터 탐색 ---
-    st.subheader("데이터 미리보기")
-    st.write(df.head())
+# 장르 분포
+st.header("🎮 게임 장르 분포")
+genre_counts = df["GameGenre"].value_counts()
+st.bar_chart(genre_counts)
 
-    # --- 장르 분포 시각화 (에러 방지 버전) ---
-    st.subheader("🌀 게임 장르 분포")
-    try:
-        genre_counts = df['GameGenre'].value_counts()
-        st.bar_chart(genre_counts)
-    except Exception as e:
-        st.error(f"장르 분포 시각화 중 오류 발생: {e}")
+# 플레이타임 통계
+st.header("⏱️ 플레이타임 분포")
+fig, ax = plt.subplots()
+sns.histplot(df["PlayTime"], kde=True, ax=ax)
+st.pyplot(fig)
 
-    # --- 참여도 분포 시각화 ---
-    st.subheader("📊 참여도(Engagement Level) 분포")
-    try:
-        engagement_counts = df['EngagementLevel'].value_counts()
-        st.bar_chart(engagement_counts)
-    except Exception as e:
-        st.error(f"참여도 시각화 중 오류 발생: {e}")
-
-    # --- 플레이 시간 vs 참여도 상자그래프 ---
-    st.subheader("⏱ 플레이 시간에 따른 참여도")
-    try:
-        fig, ax = plt.subplots()
-        sns.boxplot(data=df, x='EngagementLevel', y='PlayTimeHours')
-        ax.set_title("PlayTimeHours by EngagementLevel")
-        st.pyplot(fig)
-    except Exception as e:
-        st.error(f"박스플롯 시각화 중 오류 발생: {e}")
-
-    # --- 머신러닝 모델 학습 및 예측 ---
-    st.subheader("🧠 머신러닝 모델 참여도 예측")
-    try:
-        # 데이터 전처리 (문자형 변환 → 원-핫)
-        processed_df = pd.get_dummies(df, drop_first=True)
-
-        # 타겟과 피처 분리
-        X = processed_df.drop(columns=['EngagementLevel_Low', 'EngagementLevel_Medium', 'EngagementLevel_High'], errors='ignore')
-        y = df['EngagementLevel']
-
-        # Train/Test split
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
-
-        model = RandomForestClassifier(random_state=42)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-
-        st.write("🔍 모델 평가 결과")
-        st.text(classification_report(y_test, y_pred))
-
-        # 혼동 행렬
-        fig_cm, ax_cm = plt.subplots()
-        cm = confusion_matrix(y_test, y_pred)
-        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=ax_cm)
-        ax_cm.set_title("Confusion Matrix")
-        st.pyplot(fig_cm)
-
-    except Exception as e:
-        st.error(f"모델 학습/예측 중 오류 발생: {e}")
-
-else:
-    st.info("좌측 사이드바에서 CSV 파일을 업로드해주세요.")
+# 나이별 플레이타임
+st.header("👥 나이에 따른 평균 플레이타임")
+age_playtime = df.groupby("Age")["PlayTime"].mean()
+st.line_chart(age_playtime)
