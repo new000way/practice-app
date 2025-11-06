@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # 페이지 설정
-st.set_page_config(page_title="랜덤 게임 플레이 패턴 시뮬레이터", layout="wide")
+st.set_page_config(page_title="게임 플레이 패턴 시뮬레이터", layout="wide")
 
 # 제목
-st.title("🎮 랜덤 게임 플레이 패턴 시뮬레이터 대시보드")
+st.title("🎮 게임 플레이 패턴 시뮬레이터 대시보드")
 
 # 데이터 시뮬레이션
 np.random.seed(42)
-num_users = 1000
+num_users = 5000
 
 data = {
     "UserID": np.arange(1, num_users + 1),
