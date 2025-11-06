@@ -3,31 +3,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import matplotlib.font_manager as fm
 
 # 페이지 설정
 st.set_page_config(page_title="랜덤 게임 플레이 패턴 시뮬레이터", layout="wide")
-
-# 한글 폰트 설정
-try:
-    # 윈도우 환경 (Malgun Gothic)
-    plt.rc('font', family='Malgun Gothic')
-except:
-    try:
-        # 맥OS 환경 (AppleGothic)
-        plt.rc('font', family='AppleGothic')
-    except:
-        # 리눅스/기타 — 나눔고딕폰트를 로컬에 넣어서 사용
-        font_path = "NanumGothic.ttf"  # 같은 폴더에 업로드한 경우
-        fm.fontManager.addfont(font_path)
-        plt.rc('font', family='NanumGothic')
 
 # 제목
 st.title("🎮 랜덤 게임 플레이 패턴 시뮬레이터 대시보드")
 
 # 데이터 시뮬레이션
 np.random.seed(42)
-num_users = 1000
+num_users = 3000
 
 data = {
     "UserID": np.arange(1, num_users + 1),
@@ -87,8 +72,8 @@ st.bar_chart(favorite_hours)
 st.header("🧠 세션당 평균 시간 vs 전체 플레이타임")
 fig, ax = plt.subplots()
 sns.scatterplot(data=filtered_df, x="AvgSessionTime", y="PlayTime", hue="GameGenre", ax=ax)
-plt.xlabel("세션당 시간 (시간)")
-plt.ylabel("총 플레이타임 (시간)")
+plt.xlabel("AvgSessionTime")
+plt.ylabel("PlayTime")
 st.pyplot(fig)
 
 st.caption("Simulation Dashboard by YOU - Powered by Streamlit 🚀")
